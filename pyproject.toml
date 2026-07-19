@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "llmcost"
+version = "0.1.0"
+description = "Estimate and compare LLM API costs across providers, fully offline"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "printemps.tokyo", email = "develop@printemps.tokyo" }]
+keywords = ["llm", "cost", "pricing", "tokens", "cli", "openai", "anthropic", "gemini"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Utilities",
+]
+
+[project.urls]
+Homepage = "https://github.com/printemps-tokyo/llmcost"
+Issues = "https://github.com/printemps-tokyo/llmcost/issues"
+
+[project.scripts]
+llmcost = "llmcost.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/llmcost"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md", "LICENSE"]
