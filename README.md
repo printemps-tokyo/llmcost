@@ -11,7 +11,7 @@ the Python standard library.
 
 ## Accuracy disclaimer
 
-The embedded pricing table is a snapshot **as of 2026-07-19**. Provider
+The embedded pricing table is a snapshot **as of 2026-11-11**. Provider
 prices change, introductory rates expire, and models get renamed or retired.
 The numbers here are for quick comparison only -- the authoritative prices
 always live with the providers:
@@ -20,8 +20,8 @@ always live with the providers:
 | --------- | --------------------------------------------------------- |
 | anthropic | https://platform.claude.com/docs/en/about-claude/pricing  |
 | openai    | https://developers.openai.com/api/docs/pricing            |
-| google    | https://ai.google.dev/gemini-api/docs/pricing             |
-| xai       | https://docs.x.ai/docs/models                             |
+| google    | https://aistudio.google.com/docs/pricing                  |
+| xai       | https://docs.x.ai/developers/models                       |
 | deepseek  | https://api-docs.deepseek.com/quick_start/pricing         |
 
 Run `llmcost models` to see the snapshot date and every embedded price, and
@@ -30,15 +30,27 @@ numbers (schema below).
 
 Known snapshot caveats, recorded in each entry's `notes` field:
 
-- `claude-sonnet-5` uses introductory pricing (2/10 per MTok) through
-  2026-08-31; standard pricing (3/15) applies from 2026-09-01.
-- `gemini-3.1-pro-preview`, `grok-4.5`, and `grok-4.3` are tiered by prompt
-  size; the embedded prices are the under-200k-token tier.
+- Many models are tiered by prompt size and the embedded prices are the
+  lower tier: `claude-haiku-5-5` (up to 100k tokens), the `gpt-6*`,
+  `gpt-5.6-*`, `gpt-5.5*`, and `gpt-5.4`/`gpt-5.4-pro` models (up to 272k
+  input tokens), `gemini-3.1-pro-preview` and `gemini-2.5-pro` (up to 200k
+  tokens), and every `grok-*` model (under 200k tokens).
+- Time-limited prices: `gpt-5.6-sol` is promotional until 2026-11-30;
+  `gemini-4-carbon` and `gemini-4-argon` double on 2026-12-01;
+  `gemini-3.8-flash` and `gemini-3.6-flash` double on 2027-01-01.
+- DeepSeek bills peak and off-peak hours differently; the embedded prices
+  are the peak rates, and off-peak is half of that.
+- Deprecated but still priced: `claude-sonnet-4-5-20250929` (retires
+  2026-11-30), `gemini-2.5-pro` and `gemini-2.5-flash` (rerouted to newer
+  models and billed at their rates from 2026-12-01).
+- `gemini-3.5-flash` is no longer on Google's pricing page; its entry keeps
+  the prices verified on 2026-07-19.
+- `claude-mythos-*` models are limited-availability.
 - Google multimodal models bill audio input at a higher rate; the embedded
-  prices are the text/image/video rate.
-- OpenAI batch pricing is roughly a 50% discount but exact per-model batch
-  prices are not embedded, so `--batch` falls back to standard rates for
-  OpenAI models.
+  prices are the text/image/video rate. Google context caching also bills
+  an hourly storage fee that is not embedded.
+- Specialized and non-text models (image, audio, video, embeddings,
+  robotics, domain-specific variants) are not embedded.
 
 ## Install
 
@@ -60,37 +72,29 @@ Requires Python 3.11+. No runtime dependencies.
 
 ## Quickstart
 
-Compare a workload across every model:
+Compare a workload across every model (`--top 10` keeps the ten cheapest):
 
 ```console
-$ llmcost --in 500k --out 120k
-Cost per request for 500,000 in / 120,000 out tokens (USD, prices as of 2026-07-19)
-MODEL                   PROVIDER   INPUT    OUTPUT   TOTAL
-deepseek-v4-flash       deepseek   $0.0700  $0.0336  $0.1036
-gpt-5.4-nano            openai     $0.1000  $0.1500  $0.2500
-gemini-3.1-flash-lite   google     $0.1250  $0.1800  $0.3050
-deepseek-v4-pro         deepseek   $0.2175  $0.1044  $0.3219
-gemini-2.5-flash        google     $0.1500  $0.3000  $0.4500
-gpt-5.4-mini            openai     $0.3750  $0.5400  $0.9150
-grok-4.3                xai        $0.6250  $0.3000  $0.9250
-claude-haiku-4-5        anthropic  $0.5000  $0.6000  $1.1000
-gpt-5.6-luna            openai     $0.5000  $0.7200  $1.2200
-grok-4.5                xai        $1.0000  $0.7200  $1.7200
-gemini-3.5-flash        google     $0.7500  $1.0800  $1.8300
-claude-sonnet-5         anthropic  $1.0000  $1.2000  $2.2000
-gemini-3.1-pro-preview  google     $1.0000  $1.4400  $2.4400
-gpt-5.6-terra           openai     $1.2500  $1.8000  $3.0500
-claude-sonnet-4-6       anthropic  $1.5000  $1.8000  $3.3000
-claude-opus-4-8         anthropic  $2.5000  $3.0000  $5.5000
-gpt-5.6-sol             openai     $2.5000  $3.6000  $6.1000
-claude-fable-5          anthropic  $5.0000  $6.0000  $11.0000
+$ llmcost --in 500k --out 120k --top 10
+Cost per request for 500,000 in / 120,000 out tokens (USD, prices as of 2026-11-11)
+MODEL                  PROVIDER   INPUT    OUTPUT   TOTAL
+gpt-5-nano             openai     $0.0250  $0.0480  $0.0730
+gemini-2.5-flash-lite  google     $0.0500  $0.0480  $0.0980
+claude-haiku-5-5       anthropic  $0.0500  $0.0600  $0.1100
+gpt-6-luna             openai     $0.0500  $0.0600  $0.1100
+gpt-4o-mini            openai     $0.0750  $0.0720  $0.1470
+gpt-5.6-luna           openai     $0.1000  $0.1440  $0.2440
+gpt-5.4-nano           openai     $0.1000  $0.1500  $0.2500
+deepseek-flash         deepseek   $0.1500  $0.1440  $0.2940
+gemini-3.1-flash-lite  google     $0.1250  $0.1800  $0.3050
+gpt-5-mini             openai     $0.1250  $0.2400  $0.3650
 ```
 
 Project daily traffic to monthly spend for one model:
 
 ```console
 $ llmcost --model claude-sonnet-5 --in 2m --out 500k --per day --month
-Cost per month for 2,000,000 in / 500,000 out tokens (USD, prices as of 2026-07-19)
+Cost per month for 2,000,000 in / 500,000 out tokens (USD, prices as of 2026-11-11)
 MODEL            PROVIDER   INPUT    OUTPUT   TOTAL
 claude-sonnet-5  anthropic  $120.00  $150.00  $270.00
 ```
@@ -99,11 +103,10 @@ List the embedded pricing table:
 
 ```console
 $ llmcost models
-Pricing snapshot as of 2026-07-19 (USD per 1M tokens)
-MODEL                   PROVIDER   INPUT  OUTPUT  CACHED-IN  BATCH-IN  BATCH-OUT
-claude-fable-5          anthropic  10     50      1          5         25
-claude-opus-4-8         anthropic  5      25      0.50       2.50      12.50
-claude-sonnet-5         anthropic  2      10      0.20       1         5
+Pricing snapshot as of 2026-11-11 (USD per 1M tokens)
+MODEL                         PROVIDER   INPUT  OUTPUT  CACHED-IN  BATCH-IN  BATCH-OUT
+claude-fable-5-2              anthropic  8      40      0.20       4         20
+claude-mythos-5-2             anthropic  8      40      0.20       4         20
 ...
 ```
 
@@ -179,7 +182,7 @@ optional; duplicate provider/model pairs are rejected.
 
 ```json
 {
-  "as_of": "2026-07-19",
+  "as_of": "2026-11-11",
   "currency": "USD",
   "period": "request",
   "input_tokens": 500000,
@@ -193,11 +196,11 @@ optional; duplicate provider/model pairs are rejected.
       "model": "claude-sonnet-5",
       "provider": "anthropic",
       "input_cost": "1",
-      "cached_cost": "0",
+      "cached_cost": "0.00",
       "output_cost": "1.2",
-      "total": "2.2",
+      "total": "2.20",
       "batch_applied": false,
-      "notes": "Introductory pricing through 2026-08-31; ..."
+      "notes": "The 2/10 launch pricing is now the standard price; the increase to 3/15 planned for 2026-09-01 did not occur"
     }
   ]
 }
@@ -210,7 +213,7 @@ factor applied (`requests`, times 30 when projecting a day to a month).
 
 ```csv
 model,provider,input_cost,cached_cost,output_cost,total,batch_applied
-deepseek-v4-flash,deepseek,0.07,0,0.0336,0.1036,false
+gpt-5-nano,openai,0.025,0.000,0.048,0.073,false
 ```
 
 ## Development

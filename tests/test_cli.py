@@ -135,7 +135,7 @@ class EstimateCliTest(unittest.TestCase):
         self.assertEqual(ctx.exception.code, 2)
 
     def test_cached_exceeding_input_errors(self) -> None:
-        code, _, err = run_cli("--in", "1k", "--cached", "2k", "--model", "haiku")
+        code, _, err = run_cli("--in", "1k", "--cached", "2k", "--model", "claude-haiku-4-5")
         self.assertEqual(code, 1)
         self.assertIn("cached_tokens", err)
 
